@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#31594c">
+  <title>拾色 · 圖片純色工具</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="pixels.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="拾色首頁"><span class="brand-mark">◈</span>拾色<span class="brand-en">COLOR REFINER</span></a>
+    <span class="privacy"><span class="status-dot"></span>圖片僅在你的瀏覽器中處理</span>
+  </header>
+  <main>
+    <div class="intro">
+      <div><p class="eyebrow">A LITTLE LESS NOISE, A LITTLE MORE COLOR</p><h1>讓相近的顏色，<span>回到同一色。</span></h1><p class="subtitle">框選範圍、找到相近色，將圖片裡的小色差整理成乾淨純色。</p></div>
+      <button id="demo-button" class="button secondary">試用範例 <span aria-hidden="true">↗</span></button>
+    </div>
+    <div class="editor">
+      <section class="workspace" aria-label="圖片編輯區">
+        <div class="workspace-toolbar">
+          <div class="tools" role="group" aria-label="編輯工具">
+            <button id="select-tool" class="tool active" aria-pressed="true" disabled><span aria-hidden="true">▧</span> 框選區域</button>
+            <button id="pick-tool" class="tool" aria-pressed="false" disabled><span aria-hidden="true">⌖</span> 吸取顏色</button>
+          </div>
+          <button id="select-all" class="text-button" disabled>選取全圖</button>
+        </div>
+        <div id="drop-zone" class="stage">
+          <div id="empty-state" class="empty-state">
+            <div class="upload-art" aria-hidden="true"><span class="art-sun"></span><span class="art-hill"></span><span class="art-plus">+</span></div>
+            <h2>從一張圖片開始</h2><p>拖曳圖片到這裡，或從裝置選擇檔案</p>
+            <button id="upload-button" class="button primary">＋ 選擇圖片</button>
+            <span class="file-hint">PNG、JPG、WebP 等瀏覽器支援格式 · 最多 1,600 萬像素</span>
+          </div>
+          <div id="canvas-wrap" class="canvas-wrap" hidden><canvas id="image-canvas" aria-label="圖片預覽，可拖曳框選區域；亦可用右側座標欄設定區域"></canvas><div id="selection-box" class="selection-box" hidden></div></div>
+          <div id="original-badge" class="original-badge" hidden>原始圖片</div>
+        </div>
+        <div class="workspace-footer"><span id="image-info">尚未載入圖片</span><div><button id="compare-button" class="text-button" aria-pressed="false" disabled>查看原圖</button><button id="change-image" class="text-button">更換圖片</button></div></div>
+        <input id="file-input" type="file" accept="image/*" hidden>
+      </section>
+      <aside class="settings" aria-label="替色設定">
+        <div class="panel-heading"><h2>純色設定</h2><span class="small-tag">RGB</span></div>
+        <fieldset id="controls" disabled>
+          <section class="setting-section region-section"><div class="section-title"><h3><span class="step">01</span>處理區域</h3><span id="region-label">整張圖片</span></div><p class="helper">在圖片上拖曳框選，或輸入像素座標。</p>
+            <div class="region-inputs"><label>X<input id="region-x" type="number" min="0" value="0" step="1"></label><label>Y<input id="region-y" type="number" min="0" value="0" step="1"></label><label>寬<input id="region-width" type="number" min="1" value="1" step="1"></label><label>高<input id="region-height" type="number" min="1" value="1" step="1"></label></div>
+          </section>
+          <section class="setting-section"><div class="section-title"><h3><span class="step">02</span>要合併的顏色範圍</h3></div>
+            <div class="sample-row"><span id="sample-swatch" class="color-swatch"></span><div><span class="field-caption">取樣顏色</span><span id="sample-value" class="mono">RGB 220, 220, 220</span></div><button id="sample-button" class="icon-button" title="從圖片吸取顏色" aria-label="從圖片吸取顏色">⌖</button></div>
+            <div class="range-title"><label for="tolerance">快速容差</label><span id="tolerance-value" class="value-pill">± 20</span></div><input id="tolerance" class="slider" type="range" min="0" max="128" value="20"><p class="helper">以取樣色為中心，同步設定下方 RGB 範圍。</p>
+            <div class="channel-table"><div class="channel-heading"><span>色彩通道</span><span>最小值</span><span></span><span>最大值</span></div>
+              <div class="channel-row"><label for="r-min"><i class="channel-dot red"></i>R <small>紅</small></label><input id="r-min" type="number" min="0" max="255" value="200" aria-label="R 最小值"><span>—</span><input id="r-max" type="number" min="0" max="255" value="240" aria-label="R 最大值"></div>
+              <div class="channel-row"><label for="g-min"><i class="channel-dot green"></i>G <small>綠</small></label><input id="g-min" type="number" min="0" max="255" value="200" aria-label="G 最小值"><span>—</span><input id="g-max" type="number" min="0" max="255" value="240" aria-label="G 最大值"></div>
+              <div class="channel-row"><label for="b-min"><i class="channel-dot blue"></i>B <small>藍</small></label><input id="b-min" type="number" min="0" max="255" value="200" aria-label="B 最小值"><span>—</span><input id="b-max" type="number" min="0" max="255" value="240" aria-label="B 最大值"></div>
+            </div><p class="helper">R、G、B 三個通道皆在範圍內才會替換，包含邊界值。</p>
+          </section>
+          <section class="setting-section target-section"><h3><span class="step">03</span>替換成指定純色</h3><div class="target-row"><input id="target-color" type="color" value="#ffffff" aria-label="目標純色"><div><label for="target-hex" class="field-caption">目標色碼</label><input id="target-hex" class="hex-input" type="text" value="#FFFFFF" maxlength="7" spellcheck="false" aria-label="目標十六進位色碼"></div><span class="target-arrow" aria-hidden="true">↗</span></div></section>
+          <label class="preview-label"><input id="preview-toggle" type="checkbox" checked><span>即時預覽替色效果</span><span class="preview-dot"></span></label>
+          <div class="match-summary"><span>符合條件的像素</span><strong id="match-count">—</strong></div>
+          <button id="apply-button" class="button primary apply-button">套用純色 <span aria-hidden="true">→</span></button>
+          <div class="history-buttons"><button id="undo-button" class="text-button" disabled>↶ 復原上一步</button><button id="reset-button" class="text-button" disabled>重設圖片</button></div>
+        </fieldset>
+      </aside>
+    </div>
+    <div class="bottom-bar"><p id="status" role="status" aria-live="polite">小提示：用吸色工具點一下圖片，就能快速設定想整理的顏色。</p><button id="download-button" class="button download-button" disabled>↓ 下載 PNG</button></div>
+    <footer class="page-footer"><span>拾色 · 把色彩整理得剛剛好</span><span>保留原始尺寸與透明度</span></footer>
+  </main>
+</body>
+</html>
